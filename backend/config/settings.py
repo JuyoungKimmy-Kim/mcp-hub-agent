@@ -1,14 +1,18 @@
 """애플리케이션 설정 관리 모듈"""
 
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Literal
+
+# backend/.env 파일 경로
+ENV_FILE = Path(__file__).parent.parent / ".env"
 
 
 class Settings(BaseSettings):
     """환경 변수 기반 애플리케이션 설정"""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(ENV_FILE),
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
