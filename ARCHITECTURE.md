@@ -3,24 +3,26 @@
 ## 시스템 아키텍처
 
 ```
-┌──────────────────────────────┐
-│ Web Frontend (React)         │
-│ ├ Chat UI                    │
-│ ├ Login (token 만 넣음)      │
-│ └ Calls /api/chat (SSE)      │
-└───────────────▲──────────────┘
+┌────────────────────────────────────────┐
+│ MCP Hub Web (사용자 로그인)           │
+│ └─ Embedded Chatbot UI (React)        │
+│    └ Calls /api/chat (SSE)            │
+│      + Authorization: Bearer <token>   │
+└───────────────▲────────────────────────┘
                 │
-                │ message + token (streaming)
+                │ message + JWT token (streaming)
                 ▼
 ┌──────────────────────────────┐
 │ Backend (FastAPI)            │
 │ ├ /api/chat (SSE)            │
 │ ├ /api/health                │
-│ ├ Auth Middleware            │
+│ ├ Auth Middleware (선택적)   │
+│ │  - JWT 검증 & user_id 추출│
+│ │  - 토큰 없으면 익명 처리   │
 │ ├ Rate Limiting              │
 │ └ agent.run_stream()         │
 └───────────────▲──────────────┘
-                │ metadata {token}
+                │ metadata {user_id}
                 ▼
 ┌──────────────────────────────┐
 │ ADK Agent                    │
@@ -29,11 +31,13 @@
 │ ├ ReportTool                 │
 │ └ AnalyticsTool (MCP 기반)  │
 └───────────────▲──────────────┘
-                │
+                │ + user_id (if authenticated)
                 ▼
 ┌──────────────────────────────┐
-│ MCP Hub MCP Server           │
+│ MCP Hub MCP Server (SSE)     │
 │ └ Provides all analytics data│
+│   - 익명: 공개 정보만        │
+│   - 인증: 개인화 정보 포함   │
 └──────────────────────────────┘
 ```
 
@@ -83,7 +87,7 @@ project-root/
 │   ├── requirements.txt
 │   └── Dockerfile
 │
-├── frontend/                    # 웹 페이지용 Chat UI
+├── frontend/                    # MCP Hub Web에 임베드될 Chat UI
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── Chat/
@@ -92,19 +96,14 @@ project-root/
 │   │   │   │   ├── MessageItem.jsx
 │   │   │   │   ├── InputBox.jsx
 │   │   │   │   └── TypingIndicator.jsx
-│   │   │   ├── Auth/
-│   │   │   │   └── Login.jsx
 │   │   │   └── Visualizations/
 │   │   │       ├── ChartRenderer.jsx     # base64 차트 렌더링
 │   │   │       └── ReportViewer.jsx      # PDF/MD 리포트 뷰어
 │   │   ├── hooks/
-│   │   │   ├── useAuth.js
 │   │   │   ├── useChat.js                # 채팅 로직 분리
 │   │   │   └── useStreamingChat.js       # SSE 스트리밍 처리
 │   │   ├── services/
-│   │   │   └── api.js                    # Backend API 호출
-│   │   ├── contexts/
-│   │   │   └── AuthContext.jsx
+│   │   │   └── api.js                    # Backend API 호출 (JWT 토큰 헤더 포함)
 │   │   ├── utils/
 │   │   │   └── localStorage.js           # 대화 히스토리 저장
 │   │   ├── App.jsx
@@ -122,12 +121,16 @@ project-root/
 ## 핵심 개념
 
 ### 기본 원칙
-- Tool중 mcp-hub 관련 질의는 **mcp-hub-mcp 통해 가져옴**
+- Tool중 mcp-hub 관련 질의는 **mcp-hub-mcp (SSE) 통해 가져옴**
 - **시각화 = ChartTool** (matplotlib/plotly → base64)
 - **요약/보고서 = ReportTool** (PDF/Markdown 생성)
-- **일반 사용자(User)만 존재 (role 필요 없음)** → 추후에는 admin만 조회할 수 있는 기능도 추가
-- **Chatbot UI에서 Token 넣고 대화 시작** → 내가 만든 mcp server list알려줘 등을 조회하기 위해 사용자 인증
-- Backend → Fast API, Frontend → React (Vite) 기반
+- **챗봇은 MCP Hub 웹사이트에 임베드됨** → 별도 로그인 UI 없음
+- **인증 처리:**
+  - **익명 사용자**: 공개 정보만 조회 (예: "가장 인기있는 MCP는?")
+  - **로그인 사용자**: 개인화 정보 조회 (예: "내가 등록한 MCP 중 가장 인기있는 것은?")
+  - MCP Hub 웹사이트가 JWT 토큰을 자동으로 전달 (Authorization 헤더)
+- **JWT_SECRET_KEY는 MCP Hub 웹사이트와 공유** → 토큰 검증용
+- Backend → FastAPI, Frontend → React (Vite) 기반
 - Backend 서버 하나만 띄우고, Frontend를 정적 파일로 빌드해서 함께 서빙 (Docker)
 
 ### 기술 스택
@@ -255,21 +258,17 @@ async def chat_stream(request: ChatRequest):
 - [ ] TailwindCSS 설정 (선택)
 - [ ] .env.example 작성
 
-#### 10. `feat/auth-ui` - 로그인 UI
-- [ ] Login 컴포넌트 (components/Auth/Login.jsx)
-- [ ] AuthContext 구현 (contexts/AuthContext.jsx)
-- [ ] useAuth 훅 (hooks/useAuth.js)
-- [ ] LocalStorage 토큰 저장
-
-#### 11. `feat/chat-ui-basic` - 기본 Chat UI
+#### 10. `feat/chat-ui-basic` - 기본 Chat UI
 - [ ] ChatWindow 컴포넌트
 - [ ] MessageList 컴포넌트
 - [ ] MessageItem 컴포넌트
 - [ ] InputBox 컴포넌트
 - [ ] API 서비스 (services/api.js)
+  - MCP Hub 웹사이트로부터 JWT 토큰 받기
+  - Authorization 헤더에 토큰 포함
 - [ ] 기본 채팅 기능 (동기)
 
-#### 12. `feat/streaming-ui` - 스트리밍 UI 연동
+#### 11. `feat/streaming-ui` - 스트리밍 UI 연동
 - [ ] useStreamingChat 훅 (SSE 처리)
 - [ ] TypingIndicator 컴포넌트
 - [ ] 실시간 메시지 스트리밍
@@ -364,10 +363,12 @@ git branch -d feat/backend-setup
 - **선택**: Phase 5의 15 (고급 분석)
 
 ### 각 Phase별 예상 작업량
-- Phase 1-2: 기반 구축 (3-4 features)
+- Phase 1-2: 기반 구축 (5 features)
 - Phase 3: API 핵심 (3 features)
-- Phase 4: UI 기본 (4 features)
+- Phase 4: UI 기본 (3 features) - 로그인 UI 제거됨
 - Phase 5: 고급 기능 (3 features, 선택적)
-- Phase 6: 최적화 (2-3 features)
+- Phase 6: 최적화 (3 features)
 - Phase 7: 배포 (2 features)
+
+**총 19개 features** (기존 20개에서 auth-ui 제거)
 
