@@ -25,7 +25,9 @@
                 │ metadata {user_id}
                 ▼
 ┌──────────────────────────────┐
-│ ADK Agent                    │
+│ Google ADK Agent             │
+│ ├ LLM: Gemini (dev)          │
+│ │      GPT (prod)             │
 │ ├ MCPHubTool                 │
 │ ├ ChartTool                  │
 │ ├ ReportTool                 │
@@ -137,7 +139,10 @@ project-root/
 
 **Backend:**
 - FastAPI (비동기 웹 프레임워크)
-- Anthropic Agent SDK (ADK)
+- Google ADK (Agent Development Kit)
+- LLM:
+  - 개발: Gemini 2.0 Flash (google-generativeai)
+  - 프로덕션: GPT-4o (openai)
 - Pydantic Settings (환경 변수 관리)
 - httpx (비동기 HTTP 클라이언트)
 - structlog (구조화된 로깅)
@@ -218,8 +223,9 @@ async def chat_stream(request: ChatRequest):
 
 ### Phase 2: Agent 통합
 
-#### 4. `feat/adk-integration` - Anthropic Agent SDK 통합
-- [ ] ADK 설치 및 설정
+#### 4. `feat/adk-integration` - Google ADK 통합
+- [ ] Google ADK 설치 및 설정
+- [ ] LLM 설정 (Gemini for dev, GPT for prod)
 - [ ] Agent 기본 구조 (agent/agent.py)
 - [ ] System prompt 작성 (agent/instructions.md)
 - [ ] 기본 대화 테스트 (도구 없이)

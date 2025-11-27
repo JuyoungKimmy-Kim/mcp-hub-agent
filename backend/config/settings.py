@@ -24,8 +24,23 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
-    # Anthropic
-    ANTHROPIC_API_KEY: str
+    # LLM API Keys
+    GOOGLE_API_KEY: str  # Gemini (개발 환경)
+    OPENAI_API_KEY: str  # GPT (프로덕션 환경)
+
+    # Model Selection
+    MODEL_NAME_DEV: str = "gemini-2.0-flash-exp"
+    MODEL_NAME_PROD: str = "gpt-4o"
+
+    @property
+    def model_name(self) -> str:
+        """현재 환경에 맞는 모델 이름 반환"""
+        return self.MODEL_NAME_PROD if self.APP_ENV == "production" else self.MODEL_NAME_DEV
+
+    @property
+    def llm_api_key(self) -> str:
+        """현재 환경에 맞는 API 키 반환"""
+        return self.OPENAI_API_KEY if self.APP_ENV == "production" else self.GOOGLE_API_KEY
 
     # MCP Hub Web (Frontend)
     WEB_URL_DEV: str

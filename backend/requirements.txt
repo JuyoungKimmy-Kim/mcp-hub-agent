@@ -3,8 +3,12 @@ fastapi==0.115.0
 uvicorn[standard]==0.32.0
 python-multipart==0.0.12
 
-# Anthropic Agent SDK
-anthropic==0.39.0
+# Google ADK (Agent Development Kit)
+google-adk
+
+# LLM APIs
+google-generativeai  # Gemini
+openai              # GPT
 
 # HTTP Client
 httpx==0.27.2
