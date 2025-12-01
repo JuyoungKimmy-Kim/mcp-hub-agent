@@ -12,6 +12,7 @@ from pathlib import Path
 
 from google.adk.agents import LlmAgent
 from google.adk.models.lite_llm import LiteLlm
+from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, SseConnectionParams
 
 # Instructions 파일 경로
 INSTRUCTIONS_FILE = Path(__file__).parent / "instructions.md"
@@ -67,11 +68,47 @@ def _get_model():
         return model_name
 
 
+def _get_mcp_tools() -> list:
+    """
+    여러 MCP 서버에서 도구 가져오기
+
+    SSE transport를 사용하여 원격 MCP 서버들과 연결
+
+    Returns:
+        list: MCPToolset 인스턴스 리스트
+    """
+    app_env = os.getenv("APP_ENV", "development")
+    toolsets = []
+
+    # 1. MCP Hub MCP 서버 (SSE)
+    # Base URL만 사용 (SseServerTransport가 /messages 경로를 처리)
+    mcp_hub_url = os.getenv(
+        "MCP_HUB_SERVER_URL_PROD" if app_env == "production" else "MCP_HUB_SERVER_URL_DEV",
+        "http://localhost:10004"
+    )
+
+    mcp_hub_toolset = MCPToolset(
+        connection_params=SseConnectionParams(
+            url=mcp_hub_url,
+            timeout=float(os.getenv("MCP_SERVER_TIMEOUT", "30")),
+            sse_read_timeout=300.0,
+        ),
+    )
+    toolsets.append(mcp_hub_toolset)
+
+    # 2. 추가 MCP 서버들 (향후 추가)
+    # 예: Analytics MCP, Chart MCP 등
+    # analytics_toolset = MCPToolset(...)
+    # toolsets.append(analytics_toolset)
+
+    return toolsets
+
+
 # ADK Standard Agent Definition
 # Both ADK CLI and FastAPI use this
 root_agent = LlmAgent(
     model=_get_model(),
     name="mcp_hub_agent",
     instruction=_load_instructions(),
-    tools=[],  # Tools will be added in later phases
+    tools=_get_mcp_tools(),  # MCP Hub MCP 서버의 도구들
 )

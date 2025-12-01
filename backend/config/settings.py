@@ -51,8 +51,16 @@ class Settings(BaseSettings):
     WEB_URL_PROD: str
 
     # MCP Hub MCP Server (SSE)
-    MCP_SERVER_URL_DEV: str
-    MCP_SERVER_URL_PROD: str
+    MCP_HUB_SERVER_URL_DEV: str
+    MCP_HUB_SERVER_URL_PROD: str
+
+    # Additional MCP Servers (optional)
+    ANALYTICS_MCP_URL_DEV: str | None = None
+    ANALYTICS_MCP_URL_PROD: str | None = None
+    CHART_MCP_URL_DEV: str | None = None
+    CHART_MCP_URL_PROD: str | None = None
+
+    # MCP Connection Settings
     MCP_SERVER_TIMEOUT: int = 30
 
     @property
@@ -61,9 +69,9 @@ class Settings(BaseSettings):
         return self.WEB_URL_PROD if self.APP_ENV == "production" else self.WEB_URL_DEV
 
     @property
-    def mcp_server_url(self) -> str:
-        """현재 환경에 맞는 MCP 서버 URL 반환 (SSE)"""
-        return self.MCP_SERVER_URL_PROD if self.APP_ENV == "production" else self.MCP_SERVER_URL_DEV
+    def mcp_hub_server_url(self) -> str:
+        """현재 환경에 맞는 MCP Hub 서버 URL 반환 (SSE)"""
+        return self.MCP_HUB_SERVER_URL_PROD if self.APP_ENV == "production" else self.MCP_HUB_SERVER_URL_DEV
 
     # Authentication
     JWT_SECRET_KEY: str
