@@ -53,13 +53,16 @@ def _get_model():
         if not api_key:
             raise ValueError("OPENAI_API_KEY is required for production environment")
 
+        # LiteLLM 환경 변수 설정 (사내 LLM content 누락 문제 해결)
+        os.environ["LITELLM_DROP_PARAMS"] = "True"
+
         # LiteLlm 설정
         litellm_config = {
             "model": f"openai/{model_name}",
             "api_key": api_key,
+            "drop_params": True,
         }
 
-        # base_url이 있으면 추가 (사내 LLM 사용 시)
         if base_url:
             litellm_config["api_base"] = base_url
 
