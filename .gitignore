@@ -75,3 +75,6 @@ frontend/build/
 
 # OS
 Thumbs.db
+.venv/
+*.pyc
+__pycache__/
