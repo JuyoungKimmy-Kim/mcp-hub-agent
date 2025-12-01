@@ -37,7 +37,7 @@ def _get_model():
     환경에 맞는 모델 반환
 
     개발 환경: Gemini 2.0 Flash (기본)
-    프로덕션 환경: GPT-4o
+    프로덕션 환경: GPT-OSS-120B
 
     Returns:
         str | LiteLlm: 모델 설정
@@ -45,17 +45,25 @@ def _get_model():
     app_env = os.getenv("APP_ENV", "development")
 
     if app_env == "production":
-        # 프로덕션: OpenAI GPT-4o
-        model_name = os.getenv("MODEL_NAME_PROD", "gpt-4o")
+        # 프로덕션: GPT-OSS-120B 또는 사내 LLM
+        model_name = os.getenv("MODEL_NAME_PROD", "gpt-oss-120b")
         api_key = os.getenv("OPENAI_API_KEY")
+        base_url = os.getenv("OPENAI_BASE_URL")  # 사내 LLM 엔드포인트
 
         if not api_key:
             raise ValueError("OPENAI_API_KEY is required for production environment")
 
-        return LiteLlm(
-            model=f"openai/{model_name}",
-            api_key=api_key,
-        )
+        # LiteLlm 설정
+        litellm_config = {
+            "model": f"openai/{model_name}",
+            "api_key": api_key,
+        }
+
+        # base_url이 있으면 추가 (사내 LLM 사용 시)
+        if base_url:
+            litellm_config["api_base"] = base_url
+
+        return LiteLlm(**litellm_config)
     else:
         # 개발: Gemini 2.0 Flash
         model_name = os.getenv("MODEL_NAME_DEV", "gemini-2.0-flash-exp")

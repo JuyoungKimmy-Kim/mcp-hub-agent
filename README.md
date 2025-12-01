@@ -8,7 +8,7 @@ This agent helps users discover and interact with MCP (Model Context Protocol) s
 
 ## Features
 
-- **Multi-LLM Support**: Gemini 2.0 Flash (dev) / GPT-4o (prod)
+- **Multi-LLM Support**: Gemini 2.0 Flash (dev) / GPT-OSS-120B (prod)
 - **MCP Integration**: Connects to MCP servers via SSE transport
 - **Extensible Tools**: Modular architecture for multiple MCP toolsets
 - **Session Management**: Built-in conversation history tracking
@@ -20,7 +20,7 @@ This agent helps users discover and interact with MCP (Model Context Protocol) s
 - Google ADK 1.19.0+
 - API Keys:
   - `GOOGLE_API_KEY` (for Gemini)
-  - `OPENAI_API_KEY` (for GPT-4o, optional)
+  - `OPENAI_API_KEY` (for GPT-OSS-120B, optional)
 
 ## Installation
 
@@ -41,7 +41,8 @@ Key environment variables in `backend/.env`:
 # LLM Configuration
 APP_ENV=development                    # development | production
 GOOGLE_API_KEY=your-google-api-key     # For Gemini (dev)
-OPENAI_API_KEY=your-openai-api-key     # For GPT-4o (prod)
+OPENAI_API_KEY=your-openai-api-key     # For GPT-OSS-120B (prod)
+OPENAI_BASE_URL=https://your-llm-endpoint/v1  # Optional: Custom LLM endpoint
 
 # MCP Servers
 MCP_HUB_SERVER_URL_DEV=http://localhost:10004
@@ -73,7 +74,7 @@ python test_mcp_connection.py
 
 ```
 Agent (LlmAgent)
-├── Model: Gemini 2.0 Flash / GPT-4o
+├── Model: Gemini 2.0 Flash / GPT-OSS-120B
 ├── Instructions: backend/agents/instructions.md
 └── Tools: MCPToolset[]
     └── MCP Hub MCP Server (SSE)

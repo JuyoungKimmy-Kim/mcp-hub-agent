@@ -21,7 +21,7 @@
 ### 🎯 핵심 특징
 
 - **Code-First**: Python 코드로 Agent 로직 정의
-- **Model-Agnostic**: Gemini, GPT-4o 등 다양한 LLM 지원
+- **Model-Agnostic**: Gemini, GPT-OSS-120B 등 다양한 LLM 지원
 - **Tool Ecosystem**: 함수, OpenAPI, MCP 등 다양한 도구 통합
 - **Multi-Agent System**: 여러 Agent를 조합한 복잡한 워크플로우 구축
 
@@ -33,7 +33,7 @@
 # ❌ 직접 LLM API 호출
 if app_env == "production":
     response = openai.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-oss-120b",
         messages=[...],
         # 세션 관리, 도구 호출, 스트리밍 등 직접 구현...
     )
@@ -83,7 +83,7 @@ OPENAI_API_KEY=your-openai-api-key-here  # 프로덕션용
 
 # Model Selection
 MODEL_NAME_DEV=gemini-2.0-flash-exp
-MODEL_NAME_PROD=gpt-4o
+MODEL_NAME_PROD=gpt-oss-120b
 ```
 
 ### 3. 프로젝트 구조
@@ -160,13 +160,13 @@ def _get_model():
     환경에 맞는 모델 반환
 
     - 개발: Gemini 2.0 Flash
-    - 프로덕션: GPT-4o
+    - 프로덕션: GPT-OSS-120B
     """
     app_env = os.getenv("APP_ENV", "development")
 
     if app_env == "production":
-        # 프로덕션: OpenAI GPT-4o
-        model_name = os.getenv("MODEL_NAME_PROD", "gpt-4o")
+        # 프로덕션: OpenAI GPT-OSS-120B
+        model_name = os.getenv("MODEL_NAME_PROD", "gpt-oss-120b")
         api_key = os.getenv("OPENAI_API_KEY")
 
         if not api_key:
@@ -224,7 +224,7 @@ agents:
 environment:
   APP_ENV: development
   MODEL_NAME_DEV: gemini-2.0-flash-exp
-  MODEL_NAME_PROD: gpt-4o
+  MODEL_NAME_PROD: gpt-oss-120b
 ```
 
 ---
@@ -463,7 +463,7 @@ async def run_agent_stream(
 │ │    Assistant (과거): "이전 답변"                   │ │
 │ │    User (새): "Hello, what is MCP Hub?"            │ │
 │ │                                                      │ │
-│ │ 3. LLM API 호출 (Gemini or GPT-4o)                 │ │
+│ │ 3. LLM API 호출 (Gemini or GPT-OSS-120B)                 │ │
 │ │    ├─> google.generativeai.generate_content()     │ │
 │ │    └─> 또는 openai.chat.completions.create()      │ │
 │ │                                                      │ │
@@ -693,7 +693,7 @@ root_agent = LlmAgent(
 
 ### ADK가 제공하는 가치
 
-- ✅ LLM API 추상화 (Gemini, GPT-4o 등)
+- ✅ LLM API 추상화 (Gemini, GPT-OSS-120B 등)
 - ✅ 세션 관리 (대화 컨텍스트 유지)
 - ✅ 스트리밍 처리 (실시간 응답)
 - ✅ Tool 오케스트레이션 (자율 Agent)

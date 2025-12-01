@@ -11,4 +11,4 @@ agents:
 environment:
   APP_ENV: development
   MODEL_NAME_DEV: gemini-2.0-flash-exp
-  MODEL_NAME_PROD: gpt-4o
+  MODEL_NAME_PROD: gpt-oss-120b

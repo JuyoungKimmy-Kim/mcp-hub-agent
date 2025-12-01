@@ -34,7 +34,7 @@ class Settings(BaseSettings):
 
     # Model Selection
     MODEL_NAME_DEV: str = "gemini-2.0-flash-exp"
-    MODEL_NAME_PROD: str = "gpt-4o"
+    MODEL_NAME_PROD: str = "gpt-oss-120b"
 
     @property
     def model_name(self) -> str:
