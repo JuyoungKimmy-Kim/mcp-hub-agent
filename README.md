@@ -103,19 +103,3 @@ def _get_mcp_tools() -> list:
 
     return toolsets
 ```
-
-## Project Status
-
-- ✅ **Phase 1-3**: FastAPI setup, logging, settings
-- ✅ **Phase 2-4**: ADK integration, LLM configuration
-- 🔄 **Phase 2-5**: MCP tools integration (in progress)
-- ⏳ **Phase 3+**: API endpoints, frontend
-
-## Documentation
-
-- [Architecture](ARCHITECTURE.md): Full system design
-- [ADK Development Guide](docs/ADK_DEVELOPMENT_GUIDE.md): ADK usage patterns
-
-## License
-
-[Add your license here]
