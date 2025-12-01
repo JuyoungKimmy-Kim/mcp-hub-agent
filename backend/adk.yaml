@@ -1,0 +1,14 @@
+# ADK Configuration File
+# This file tells ADK CLI where to find agents
+
+agents:
+  - name: mcp_hub_agent
+    path: agents/mcp_hub_agent.py
+    description: "MCP Hub chatbot agent that helps users discover and analyze MCP servers"
+
+# Environment configuration
+# These can be overridden by environment variables
+environment:
+  APP_ENV: development
+  MODEL_NAME_DEV: gemini-2.0-flash-exp
+  MODEL_NAME_PROD: gpt-4o
